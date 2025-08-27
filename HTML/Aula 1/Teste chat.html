@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Cassino Fictício 🎰</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(-45deg, #0d0d0d, #1a1a1a, #2b0000, #0d0d0d);
+      background-size: 400% 400%;
+      animation: gradient 12s ease infinite;
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    @keyframes gradient {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+    h1 {
+      margin: 20px;
+      font-size: 2.5em;
+      color: #ff2e2e;
+      text-shadow: 0 0 20px #ff0000, 0 0 40px #ff2e2e;
+      animation: glowTitulo 2s infinite alternate;
+    }
+    @keyframes glowTitulo {
+      from { text-shadow: 0 0 10px #ff0000; }
+      to { text-shadow: 0 0 30px #ff2e2e, 0 0 60px #ff0000; }
+    }
+    h2 { color: #ff4c4c; text-shadow: 0 0 15px #ff4c4c; }
+    #saldo {
+      font-size: 1.4em;
+      margin-bottom: 15px;
+      animation: brilho 2s infinite alternate;
+    }
+    @keyframes brilho {
+      from { text-shadow: 0 0 10px #fff; }
+      to { text-shadow: 0 0 25px #ff2e2e; }
+    }
+    input, select {
+      padding: 10px;
+      width: 180px;
+      border-radius: 10px;
+      border: none;
+      margin: 8px;
+      text-align: center;
+      background: #222;
+      color: #fff;
+      box-shadow: inset 0 0 5px #444;
+    }
+    button {
+      margin: 8px;
+      padding: 12px 28px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+    .verde { background: #27ae60; color: white; box-shadow: 0 0 20px #27ae60; }
+    .verde:hover { background: #2ecc71; transform: scale(1.1); }
+    .vermelho { background: #c0392b; color: white; box-shadow: 0 0 20px #e74c3c; }
+    .vermelho:hover { background: #e74c3c; transform: scale(1.1); }
+    .cinza { background: #444; color: white; box-shadow: 0 0 20px #666; }
+    .cinza:hover { background: #666; transform: scale(1.1); }
+    .menu, .jogo { display: none; }
+    .ativo { display: block; animation: fadeIn 0.6s ease-in; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Histórico */
+    .historico {
+      margin-top: 15px;
+      background: #111;
+      padding: 12px;
+      border-radius: 10px;
+      box-shadow: inset 0 0 10px #333;
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: left;
+      font-size: 0.9em;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .historico p:nth-child(odd){ background:#1a1a1a; padding:4px; border-radius:5px; }
+    .win { color: #2ecc71; text-shadow: 0 0 10px #27ae60; }
+    .loss { color: #e74c3c; text-shadow: 0 0 10px #e74c3c; }
+
+    /* Slots */
+    .slots {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      font-size: 70px;
+      margin: 20px;
+      text-shadow: 0 0 20px #ff0000, 0 0 40px #ff2e2e;
+    }
+    .slotCol {
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      background: #111;
+      box-shadow: 0 0 15px #ff2e2e inset;
+      animation: pulse 1.2s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+
+    /* Mines */
+    .grid {
+      display: grid;
+      gap: 14px;
+      justify-content: center;
+      margin: 20px auto;
+    }
+    .casa {
+      width: 90px; height: 90px;
+      font-size: 30px;
+      background: #111;
+      border: 2px solid #ff2e2e;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .casa:hover { background: #ff2e2e; transform: scale(1.1); }
+    .casa.explodiu { animation: shake 0.4s; background: #e74c3c; }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      50% { transform: translateX(8px); }
+      75% { transform: translateX(-8px); }
+      100% { transform: translateX(0); }
+    }
+
+    /* Saldo efeito */
+    @keyframes pulseSaldo{
+      0%{ transform:scale(1); color:#fff; }
+      50%{ transform:scale(1.2); color:#2ecc71; }
+      100%{ transform:scale(1); color:#fff; }
+    }
+  </style>
+</head>
+<body>
+  <h1>🎰 Cassino Fictício</h1>
+  <p id="saldo">💰 Saldo: R$100.00</p>
+
+  <input type="number" id="valor" placeholder="Valor" min="1">
+  <button class="verde" onclick="depositar()">Depositar</button>
+  <button class="vermelho" onclick="retirar()">Retirar</button>
+
+  <!-- MENU -->
+  <div id="menu" class="menu ativo">
+    <h2>Escolha um jogo</h2>
+    <button class="cinza" onclick="abrir('cara')">Cara ou Coroa</button>
+    <button class="cinza" onclick="abrir('aviao')">Avião</button>
+    <button class="cinza" onclick="abrir('mines')">Mines</button>
+    <button class="cinza" onclick="abrir('slots')">Slots</button>
+  </div>
+
+  <!-- Cara ou Coroa -->
+  <div id="cara" class="jogo">
+    <h2>Cara ou Coroa</h2>
+    <div style="font-size:100px">🪙</div>
+    <p id="resultado-cara"></p>
+    <input type="number" id="apostaCara" placeholder="Valor aposta">
+    <button class="verde" onclick="jogarCara('Cara')">Apostar em Cara</button>
+    <button class="vermelho" onclick="jogarCara('Coroa')">Apostar em Coroa</button>
+    <div class="historico" id="histCara"></div>
+    <button class="cinza" onclick="voltar()">Voltar</button>
+  </div>
+
+  <!-- Avião -->
+  <div id="aviao" class="jogo">
+    <h2>✈️ Avião</h2>
+    <p>Multiplicador: <span id="multi">1.00</span>x</p>
+    <div style="font-size:80px">✈️</div>
+    <input type="number" id="apostaAviao" placeholder="Valor aposta">
+    <button class="verde" id="btnAviao" onclick="iniciarAviao()">Apostar</button>
+    <div class="historico" id="histAviao"></div>
+    <button class="cinza" onclick="voltar()">Voltar</button>
+  </div>
+
+  <!-- Mines -->
+  <div id="mines" class="jogo">
+    <h2>💣 Mines</h2>
+    <input type="number" id="apostaMines" placeholder="Valor aposta">
+    <select id="tamanhoMines">
+      <option value="3">3x3</option>
+      <option value="4">4x4</option>
+      <option value="5">5x5</option>
+    </select>
+    <button class="verde" onclick="iniciarMines()">Iniciar Jogo</button>
+    <button class="verde" onclick="pararMines()">Retirar ganhos</button>
+    <div class="grid" id="tabuleiro"></div>
+    <div class="historico" id="histMines"></div>
+    <button class="cinza" onclick="voltar()">Voltar</button>
+  </div>
+
+  <!-- Slots -->
+  <div id="slots" class="jogo">
+    <h2>🎰 Slots</h2>
+    <div class="slots" id="slotItens">
+      <div class="slotCol">🍒</div>
+      <div class="slotCol">🍋</div>
+      <div class="slotCol">🍊</div>
+    </div>
+    <input type="number" id="apostaSlots" placeholder="Valor aposta">
+    <button class="verde" onclick="girarSlots()">Jogar</button>
+    <div class="historico" id="histSlots"></div>
+    <button class="cinza" onclick="voltar()">Voltar</button>
+  </div>
+
+  <script>
+    let saldo = 100;
+    function atualizarSaldo(){ 
+      let saldoEl=document.getElementById("saldo");
+      saldoEl.innerText = "💰 Saldo: R$" + saldo.toFixed(2);
+      saldoEl.style.animation = "pulseSaldo 0.6s";
+      setTimeout(()=>saldoEl.style.animation="",600);
+    }
+    function depositar(){ let val = parseFloat(document.getElementById("valor").value)||0; if(val>0){ saldo+=val; atualizarSaldo(); } }
+    function retirar(){ let val = parseFloat(document.getElementById("valor").value)||0; if(val>0){ saldo=Math.max(0,saldo-val); atualizarSaldo(); } }
+    function abrir(id){ document.querySelectorAll('.menu,.jogo').forEach(d=>d.classList.remove('ativo')); document.getElementById(id).classList.add('ativo'); }
+    function voltar(){ document.querySelectorAll('.jogo').forEach(d=>d.classList.remove('ativo')); document.getElementById('menu').classList.add('ativo'); }
+
+    function registrar(histId, msg, tipo){
+      let div=document.getElementById(histId);
+      let p=document.createElement("p");
+      p.className=tipo;
+      let data=new Date().toLocaleTimeString();
+      p.innerText=`[${data}] ${msg}`;
+      div.prepend(p);
+      if(div.children.length>10) div.removeChild(div.lastChild);
+    }
+
+    // Cara ou Coroa
+    function jogarCara(escolha){
+      let aposta=parseFloat(document.getElementById("apostaCara").value)||0;
+      if(aposta<=0||aposta>saldo) return alert("Aposta inválida!");
+      saldo-=aposta; atualizarSaldo();
+      let resultado=Math.random()<0.5?"Cara":"Coroa";
+      document.getElementById("resultado-cara").innerText="Deu: "+resultado;
+      if(resultado===escolha){ let ganho=aposta*2; saldo+=ganho; atualizarSaldo(); registrar("histCara",`+R$${ganho.toFixed(2)} (Ganhou em ${resultado})`,"win"); }
+      else registrar("histCara",`-R$${aposta.toFixed(2)} (Perdeu em ${escolha})`,"loss");
+    }
+
+    // Avião
+    let ativo=false, apostaAv=0, multi=1, intervalo;
+    function iniciarAviao(){
+      apostaAv=parseFloat(document.getElementById("apostaAviao").value)||0;
+      if(apostaAv<=0||apostaAv>saldo) return alert("Aposta inválida!");
+      saldo-=apostaAv; atualizarSaldo(); multi=1; ativo=true;
+      document.getElementById("btnAviao").innerText="Retirar";
+      intervalo=setInterval(()=>{
+        if(!ativo)return;
+        multi+=0.1; document.getElementById("multi").innerText=multi.toFixed(2);
+        if(multi>1.3 && Math.random()<0.03){ // só explode depois de 1.3x
+          clearInterval(intervalo); ativo=false; 
+          document.getElementById("btnAviao").innerText="Apostar"; 
+          document.getElementById("btnAviao").onclick=iniciarAviao;
+          registrar("histAviao",`-R$${apostaAv.toFixed(2)} (Explodiu!)`,"loss"); 
+        }
+      },500);
+      document.getElementById("btnAviao").onclick=retirarAviao;
+    }
+    function retirarAviao(){
+      let ganho=apostaAv*multi;
+      saldo+=ganho; atualizarSaldo();
+      registrar("histAviao",`+R$${ganho.toFixed(2)} (Retirou em ${multi.toFixed(2)}x)`,"win");
+      apostaAv=0; ativo=false; clearInterval(intervalo);
+      document.getElementById("btnAviao").innerText="Apostar";
+      document.getElementById("btnAviao").onclick=iniciarAviao;
+    }
+
+    // Mines
+    let minasAtivas=false, bomba=-1, ganhos=0, apostaM=0;
+    function iniciarMines(){
+      let aposta=parseFloat(document.getElementById("apostaMines").value)||0;
+      if(aposta<=0||aposta>saldo) return alert("Aposta inválida!");
+      saldo-=aposta; atualizarSaldo();
+      apostaM=aposta; ganhos=0; minasAtivas=true;
+      let size=parseInt(document.getElementById("tamanhoMines").value);
+      let tab=document.getElementById("tabuleiro"); tab.innerHTML="";
+      tab.style.gridTemplateColumns=`repeat(${size},90px)`;
+      bomba=Math.floor(Math.random()*(size*size));
+      for(let i=0;i<size*size;i++){
+        let btn=document.createElement("div"); btn.className="casa"; btn.innerText="❓";
+        btn.onclick=()=>{
+          if(!minasAtivas||btn.innerText!="❓")return;
+          if(i===bomba){
+            btn.innerText="💣"; btn.classList.add("explodiu"); minasAtivas=false;
+            Array.from(document.querySelectorAll(".casa")).forEach(c => c.style.pointerEvents = "none");
+            registrar("histMines",`-R$${(apostaM+ganhos).toFixed(2)} (Explodiu!)`,"loss");
+          } else {
+            btn.innerText="💎"; ganhos+=apostaM*0.3; saldo+=apostaM*0.3; atualizarSaldo();
+            registrar("histMines",`+R$${(apostaM*0.3).toFixed(2)} (Achou diamante)`,"win");
+          }
+        };
+        tab.appendChild(btn);
+      }
+    }
+    function pararMines(){
+      if(!minasAtivas) return;
+      minasAtivas=false;
+      registrar("histMines",`+R$${ganhos.toFixed(2)} (Retirou ganhos)`,"win");
+    }
+
+    // Slots
+    function girarSlots(){
+      let aposta=parseFloat(document.getElementById("apostaSlots").value)||0;
+      if(aposta<=0||aposta>saldo) return alert("Aposta inválida!");
+      saldo-=aposta; atualizarSaldo();
+      let simbolos=["🍒","🍋","🍊","⭐","💎"];
+      let cols=document.querySelectorAll(".slotCol");
+      let results=[];
+      let finalizados=0;
+      cols.forEach((col,idx)=>{
+        let spins=15+idx*5;
+        let count=0;
+        let anim=setInterval(()=>{
+          col.innerText=simbolos[Math.floor(Math.random()*simbolos.length)];
+          if(++count>=spins){
+            clearInterval(anim);
+            results[idx]=col.innerText;
+            finalizados++;
+            if(finalizados===3){ // só checa no final
+              if(new Set(results).size===1){ 
+                let ganho=aposta*10; saldo+=ganho; atualizarSaldo();
+                registrar("histSlots",`+R$${ganho.toFixed(2)} (Jackpot!)`,"win"); 
+              }
+              else registrar("histSlots",`-R$${aposta.toFixed(2)} (Sem combinação)`,"loss");
+            }
+          }
+        },100);
+      });
+    }
+  </script>
+</body>
+</html>
