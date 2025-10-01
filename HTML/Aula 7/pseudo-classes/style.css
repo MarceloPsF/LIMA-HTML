@@ -1,0 +1,25 @@
+button:hover {
+        background-color: blue;
+        color: white;
+        cursor: pointer;
+}
+
+input:focus {
+    outline: 1px solid orange;
+}
+
+p:first-child {
+    font-weight: bold;
+}
+
+li:last-child {
+    color: red;
+}
+
+tr:nth-child(even) {
+    background-color: blue;
+}
+
+tr:nth-child(odd) {
+    background-color: blueviolet;
+}

@@ -1,0 +1,52 @@
+button {
+    background: blue;
+    color: white;
+    transition: backgroud 0.3s ease; /* duração e efeito*/
+}
+
+button:hover {
+    background: darkblue;
+}
+
+@keyframes piscar {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/*div {
+    animation: piscar 2s infinite;
+    width: 150px;
+    height: 150px;
+    margin: 20px;
+    background-color: rgb(218, 14, 14);
+    text-align: center;
+    color: white;
+}*/
+
+img:hover {
+    animation: infinito 0.01s linear infinite;
+}
+
+button:hover {
+    transform: rotate(20deg);
+    transition: scale(1.2); /* aumenta 20% */
+}
+
+@keyframes infinito {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+#div1{
+    background: linear-gradient(to right, red, yellow);
+}
+
+#div2{
+    background: radial-gradient(circle, blue, white);
+}
+
+
+img:hover {
+    animation: infinito 1s linear infinite;
+}
